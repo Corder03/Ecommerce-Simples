@@ -1,0 +1,15 @@
+flask==2.3.2          # O framework web principal usado para construir a aplicação.
+                      # Fornece rotas, templates, sessões e todas as funcionalidades básicas
+                      # de um aplicativo web.
+
+pymongo==4.5.0        # Driver oficial do MongoDB para Python, permite que a aplicação
+                      # se conecte e interaja com o banco de dados MongoDB, executando
+                      # operações CRUD (Create, Read, Update, Delete) nos dados.
+
+werkzeug==2.3.7       # Biblioteca utilitária que o Flask usa internamente para várias
+                      # funcionalidades como roteamento, manipulação de requisições/respostas,
+                      # sistema de templates e segurança (incluindo hash de senhas).
+
+requests==2.31.0      # Biblioteca para fazer requisições HTTP, usada no meu code para
+                      # consultar a API ViaCEP e obter informações de endereço a partir
+                      # do CEP fornecido pelo usuário.

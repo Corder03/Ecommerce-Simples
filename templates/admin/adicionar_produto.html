@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}ShopGames{% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center mb-6">
+            <a href="{{ url_for('admin_dashboard') }}" class="text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+                Voltar
+            </a>
+            <h1 class="text-2xl font-bold ml-4 text-primary-800 dark:text-primary-300">Adicionar Novo Produto</h1>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
+            <form method="POST" action="{{ url_for('adicionar_produto') }}" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="nome" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do Produto *</label>
+                        <input type="text" id="nome" name="nome" required 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                            placeholder="Digite o nome do produto">
+                    </div>
+                    
+                    <div>
+                        <label for="preco" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço *</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 dark:text-gray-400">R$</span>
+                            </div>
+                            <input type="number" step="0.01" id="preco" name="preco" required 
+                                class="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="estoque" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estoque *</label>
+                        <input type="number" id="estoque" name="estoque" required 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                            placeholder="Quantidade em estoque">
+                    </div>
+                    
+                    <div>
+                        <label for="categoria" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoria *</label>
+                        <select id="categoria" name="categoria" required 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Selecione uma categoria</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria }}">{{ categoria }}</option>
+                            {% endfor %}
+                            <option value="nova_categoria">+ Adicionar nova categoria</option>
+                        </select>
+                    </div>
+                    
+                    <div id="nova-categoria-container" class="hidden md:col-span-2">
+                        <label for="nova_categoria" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome da Nova Categoria *</label>
+                        <input type="text" id="nova_categoria" name="nova_categoria" 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                            placeholder="Digite o nome da nova categoria">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label for="imagem" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">URL da Imagem</label>
+                        <input type="url" id="imagem" name="imagem" 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                            placeholder="https://exemplo.com/imagem.jpg">
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label for="descricao" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descrição</label>
+                        <textarea id="descricao" name="descricao" rows="3" 
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white"
+                            placeholder="Descrição detalhada do produto"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                        Salvar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoriaSelect = document.getElementById('categoria');
+            const novaCategoriaContainer = document.getElementById('nova-categoria-container');
+            const novaCategoriaInput = document.getElementById('nova_categoria');
+            
+            // Função para mostrar/ocultar o campo de nova categoria
+            function toggleNovaCategoria() {
+                if (categoriaSelect.value === 'nova_categoria') {
+                    novaCategoriaContainer.classList.remove('hidden');
+                    novaCategoriaInput.setAttribute('required', 'required');
+                    // Remove o atributo 'required' do select para evitar conflito
+                    categoriaSelect.removeAttribute('required');
+                } else {
+                    novaCategoriaContainer.classList.add('hidden');
+                    novaCategoriaInput.removeAttribute('required');
+                    // Restaura o 'required' no select
+                    categoriaSelect.setAttribute('required', 'required');
+                }
+            }
+            
+            // Event listener para mudanças no select
+            categoriaSelect.addEventListener('change', toggleNovaCategoria);
+            
+            // Verificar estado inicial (caso de edição com recarregamento de página)
+            toggleNovaCategoria();
+            
+            // Validação adicional antes do envio
+            document.querySelector('form').addEventListener('submit', function(e) {
+                if (categoriaSelect.value === 'nova_categoria' && !novaCategoriaInput.value.trim()) {
+                    e.preventDefault();
+                    alert('Por favor, informe o nome da nova categoria');
+                    novaCategoriaInput.focus();
+                }
+            });
+        });
+    </script>
+{% endblock %}

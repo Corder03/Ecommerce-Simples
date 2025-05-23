@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}ShopGames{% endblock %}
+
+{% block content %}
+    <h1 class="text-3xl font-bold mb-6 text-primary-800 dark:text-primary-300">Seu Carrinho</h1>
+    
+    {% if carrinho %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-8">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Produto</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Preço Unitário</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantidade</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Subtotal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for item in carrinho %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap flex items-center">
+                                    <img src="{{ item['imagem'] }}" alt="{{ item['nome'] }}" class="w-12 h-12 rounded-md object-cover mr-3">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ item['nome'] }}</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                    R$ {{ "%.2f"|format(item['preco']) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <button onclick="updateQuantity('{{ item['nome'] }}', -1)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                            </svg>
+                                        </button>
+                                        <span id="quantity-{{ item['nome'] }}" class="mx-2 text-gray-700 dark:text-gray-300">{{ item['quantidade'] }}</span>
+                                        <button onclick="updateQuantity('{{ item['nome'] }}', 1)" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    R$ {{ "%.2f"|format(item['preco'] * item['quantidade']) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ url_for('remover_carrinho', nome=item['nome']) }}" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                        Remover
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="flex flex-col md:flex-row justify-between gap-8">
+            <div class="w-full md:w-1/2">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4 text-primary-700 dark:text-primary-400">Calcular Frete</h3>
+                    <div class="flex mb-2">
+                        <input type="text" id="cep-frete" placeholder="Digite seu CEP" class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-white">
+                        <button onclick="calcularFrete()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-r-md transition-colors">
+                            Calcular
+                        </button>
+                    </div>
+                    <div id="frete-result" class="hidden mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-md">
+                        <div id="frete-details"></div>
+                        <div id="frete-message" class="text-sm mt-1"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="w-full md:w-1/2">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md sticky top-4">
+                    <h3 class="text-xl font-semibold mb-4 text-primary-700 dark:text-primary-400">Resumo do Pedido</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300">Subtotal:</span>
+                            <span class="font-medium">R$ {{ "%.2f"|format(subtotal) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600 dark:text-gray-300">Frete:</span>
+                            <span id="frete-value" class="font-medium">R$ {{ "%.2f"|format(frete) }}</span>
+                        </div>
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3 flex justify-between text-lg font-bold">
+                            <span>Total:</span>
+                            <span id="total-value" class="text-primary-600 dark:text-primary-400">R$ {{ "%.2f"|format(total) }}</span>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('finalizar_compra') }}" class="mt-6">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-md font-medium transition-colors shadow-lg flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                            </svg>
+                            Finalizar Compra
+                        </button>
+                    </form>
+                    
+                    <div class="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                        </svg>
+                        Compra 100% segura
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-white dark:bg-gray-800 p-12 rounded-xl shadow-lg text-center max-w-2xl mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Seu carrinho está vazio</h2>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">Parece que você ainda não adicionou nenhum item ao seu carrinho. Explore nossos produtos incríveis!</p>
+            <a href="{{ url_for('index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.707-10.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L9.414 11H13a1 1 0 100-2H9.414l1.293-1.293z" clip-rule="evenodd" />
+                </svg>
+                Continuar Comprando
+            </a>
+        </div>
+    {% endif %}
+
+    <script>
+        // Atualizar quantidade do produto
+        function updateQuantity(productName, change) {
+            fetch('/atualizar-carrinho', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nome: productName,
+                    quantidade: parseInt(document.getElementById(`quantity-${productName}`).textContent) + change
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`quantity-${productName}`).textContent = data.carrinho
+                        .find(item => item.nome === productName).quantidade;
+                    
+                    // Atualizar totais
+                    document.querySelectorAll('[id^="frete"]').forEach(el => {
+                        el.textContent = `R$ ${data.frete.toFixed(2)}`;
+                    });
+                    document.getElementById('total-value').textContent = `R$ ${data.total.toFixed(2)}`;
+                } else {
+                    alert(data.error);
+                }
+            });
+        }
+        
+        // Calcular frete
+        function calcularFrete() {
+            const cep = document.getElementById('cep-frete').value.replace(/\D/g, '');
+            
+            if (cep.length !== 8) {
+                alert('CEP inválido. Digite 8 números.');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('cep', cep);
+            
+            fetch('/calcular-frete', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                
+                const freteResult = document.getElementById('frete-result');
+                const freteDetails = document.getElementById('frete-details');
+                const freteMessage = document.getElementById('frete-message');
+                
+                freteDetails.innerHTML = `
+                    <p><strong>Endereço:</strong> ${data.endereco.rua}, ${data.endereco.bairro}</p>
+                    <p><strong>Cidade:</strong> ${data.endereco.cidade}/${data.endereco.uf}</p>
+                    <p><strong>Frete:</strong> R$ ${data.frete.toFixed(2)}</p>
+                `;
+                
+                freteMessage.textContent = data.mensagem;
+                freteResult.classList.remove('hidden');
+                
+                // Atualizar valores no resumo
+                document.getElementById('frete-value').textContent = `R$ ${data.frete.toFixed(2)}`;
+                document.getElementById('total-value').textContent = `R$ ${data.total.toFixed(2)}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erro ao calcular frete');
+            });
+        }
+    </script>
+{% endblock %}
