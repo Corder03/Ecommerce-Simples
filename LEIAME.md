@@ -1,4 +1,3 @@
-Os códigos com {% %} são parte da sintaxe de templates do Jinja2, que é um mecanismo de template usado pelo Flask (e outros frameworks Python) para gerar HTML dinamicamente.
 
 =============================================================================================================================
                                                     Sobre o site - Ecommerce
